@@ -1,16 +1,20 @@
 import java.util.Arrays;
-
 class Yacht {
     private int[] yachtDice;
-    private YachtCategory category;
     private int score;
+    private YachtCategory category;
+    private int[] multis = {0, 0, 0, 0, 0, 0, 0};
 
     Yacht(int[] dice, YachtCategory yachtCategory) {
-        yachtDice = new int[5];
+        this.category = yachtCategory;
+        this.yachtDice = new int[5];
         for (int i = 0; i < dice.length; i++){
             yachtDice[i] = dice[i];
         }
-        category = yachtCategory;
+        for(int x: yachtDice){
+            multis[x]++;
+        }
+        Arrays.sort(yachtDice);
         calcScore();
     }
 
@@ -19,9 +23,7 @@ class Yacht {
     }
 
     private void calcScore(){
-        Arrays.sort(yachtDice);
         int sum = 0;
-        int tempsum = 0;
         switch(category){
             case ONES:
                 for (int x: yachtDice){
@@ -54,40 +56,45 @@ class Yacht {
                 }
                 break;
             case YACHT:
-                tempsum = 0;
-                for (int x: yachtDice) {
-                    tempsum += x;
-                }
-                if (tempsum/5 == yachtDice[0]) sum = 50;
+                if(multisContains(5)) sum = 50;
                 break;
             case FULL_HOUSE:
+                if(multisContains(3) && multisContains(2)) {
+                    for(int x:yachtDice) sum+=x;
+                }
                 break;
             case LITTLE_STRAIGHT:
-                tempsum = 0;
+                int tempsum = 0;
                 for(int i = 0; i < 4; i++){
                     if (yachtDice[i + 1] - yachtDice[i] ==  1) tempsum++;
                 }
                 if (tempsum == 4 && yachtDice[0] == 1) sum = 30;
                 break;
             case BIG_STRAIGHT:
-                tempsum = 0;
+                int tempsum2 = 0;
                 for(int i = 0; i < 4; i++){
-                    if (yachtDice[i + 1] - yachtDice[i] ==  1) tempsum++;
+                    if (yachtDice[i+1] - yachtDice[i] ==  1) tempsum2++;
                 }
-                if (tempsum == 4 && yachtDice[0] == 2) sum = 30;
+                if (tempsum2 == 4 && yachtDice[0] == 2) sum = 30;
                 break;
             case CHOICE:
-                tempsum = 0;
                 for(int x: yachtDice){
-                    tempsum += x;
+                    sum += x;
                 }
-                sum = tempsum;
                 break;
             case FOUR_OF_A_KIND:
-
+                if(multisContains(4) || multisContains(5)) {
+                    for(int p=0; p < 7; p++) if (multis[p] > 3)
+                    sum += 4 * p;
+                }
                 break;
+
         }
         score = sum;
     }
 
+    private boolean multisContains(int x){
+        for(int s:this.multis) if (s==x) return true;
+        return false;
+    }
 }
